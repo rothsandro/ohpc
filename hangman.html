@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hangman</title>
+    <meta name="description" content="" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        padding: 16px;
+        font-family: Bookman, serif;
+        font-size: 100%;
+      }
+    </style>
+
+    <style>
+      .chars {
+        display: flex;
+      }
+
+      .chars__char {
+        width: 1.5rem;
+        height: 2rem;
+        display: block;
+        margin-right: 0.5rem;
+        padding: 0.25rem;
+        border-bottom: solid 3px lightgray;
+        text-align: center;
+      }
+
+      .chars__char--is-letter {
+        border-bottom-color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hangman</h1>
+    <div id="hangman">TBD</div>
+    <div id="board">
+      <div id="chars" class="chars"></div>
+    </div>
+    <div>
+      <button onclick="reinitGame()">New Game</button>
+    </div>
+
+    <script>
+      let game = null;
+      const MAX_FAULTS = 5;
+
+      const wordList = [
+        'Higher-Order Components',
+        'styled-components',
+        'Single File Components',
+        'Progressive Web App',
+        'Cascading Style Sheets',
+      ];
+
+      function reinitGame() {
+        game = initNewGame();
+      }
+
+      function initNewGame() {
+        const hangman = new Hangman(getRandomWord());
+        drawBoard(hangman);
+        return hangman;
+      }
+
+      function getRandomWord() {
+        const index = Math.floor(Math.random() * wordList.length);
+        return wordList[index];
+      }
+
+      function drawResult(faults) {
+        const parent = document.getElementById('hangman');
+        parent.innerText = `${faults} / ${MAX_FAULTS}`;
+      }
+
+      function drawCharList(chars) {
+        const parent = document.getElementById('chars');
+        parent.innerHTML = '';
+
+        chars.forEach(char => {
+          const charEl = document.createElement('div');
+          charEl.className = `chars__char ${char.isLetter ? 'chars__char--is-letter' : ''}`;
+          charEl.innerText = char.show ? char.value : '';
+          parent.appendChild(charEl);
+        });
+      }
+
+      function drawBoard(hangman) {
+        drawCharList(hangman.getCharList());
+        drawResult(hangman.getNumberOfFaults());
+      }
+
+      function listenForInputs(callback) {
+        window.addEventListener('keydown', event => {
+          const pressedOtherKey = event.altKey || event.ctrlKey || event.metaKey; // Shift key is allowed
+          const key = event.key.toUpperCase();
+          const isLetter = key.match(/[A-Z]/);
+          !pressedOtherKey && isLetter && callback(key);
+        });
+      }
+
+      class Hangman {
+        constructor(word) {
+          this.word = word.toUpperCase();
+          this.pickedLetters = [];
+          this.faults = 0;
+        }
+
+        charsOfWord() {
+          return this.word.split('');
+        }
+
+        getNumberOfFaults() {
+          return this.faults;
+        }
+
+        getCharList() {
+          const chars = this.charsOfWord();
+          return chars.map(char => {
+            const isLetter = char.match(/[A-z]/);
+            const pickedLetterAlready = this.pickedLetters.includes(char);
+            const show = pickedLetterAlready || !isLetter;
+            return { isLetter, show, value: char };
+          });
+        }
+
+        pickedLetter(letter) {
+          const alreadyPicked = this.pickedLetters.includes(letter);
+          const contains = this.word.includes(letter);
+
+          if (alreadyPicked) {
+            console.log('Uuh, you already picked that letter');
+            return;
+          }
+
+          if (contains) {
+            this.pickedLetters.push(letter);
+            console.log('Yeah, you are great!');
+            return;
+          }
+
+          console.log('Oh no, try it again');
+          this.pickedLetters.push(letter);
+          this.faults += 1;
+        }
+
+        hasWon() {
+          return (
+            !this.hasLost() &&
+            this.charsOfWord().every(char => {
+              return this.pickedLetters.includes(char);
+            })
+          );
+        }
+
+        hasLost() {
+          return this.faults >= MAX_FAULTS;
+        }
+
+        isFinished() {
+          return this.hasLost() || this.hasWon();
+        }
+      }
+
+      game = initNewGame();
+      listenForInputs(letter => {
+        if (!game.isFinished()) {
+          game.pickedLetter(letter);
+          drawBoard(game);
+        }
+      });
+    </script>
+  </body>
+</html>
