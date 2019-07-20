@@ -171,6 +171,46 @@
         transform: rotate(55deg);
       }
     </style>
+
+    <style>
+      .modal {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal__background {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+
+      .modal__main {
+        width: 24rem;
+        z-index: 1;
+        border: 3px solid black;
+        padding: 1rem;
+        background-color: white;
+      }
+
+      .modal__content {
+        line-height: 1.5rem;
+        text-align: center;
+      }
+
+      .modal__actions {
+        margin-top: 1rem;
+        text-align: center;
+      }
+    </style>
   </head>
   <body>
     <h1>Hangman</h1>
@@ -185,8 +225,14 @@
       <div id="chars" class="chars"></div>
       <div id="keyboard" class="keyboard"></div>
     </div>
-    <div>
-      <button onclick="reinitGame()">New Game</button>
+    <div id="modal" class="modal" style="display: none">
+      <div class="modal__background"></div>
+      <div class="modal__main">
+        <div class="modal__content"></div>
+        <div class="modal__actions">
+          <button onclick="reinitGame()">Play New Game</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -204,8 +250,28 @@
         game = initNewGame();
       }
 
+      function hideModal() {
+        const modal = document.getElementById('modal');
+        modal.style.display = 'none';
+      }
+
+      function showModal(content) {
+        const modal = document.getElementById('modal');
+        const modalContent = modal.querySelector('.modal__content');
+        modalContent.innerHTML = content;
+        modal.style.display = '';
+      }
+
+      function gameEndHandler() {
+        const content = game.hasWon()
+          ? `Great, you are a winner!`
+          : `Oh no, you fucked up! We were looking for <strong>${game.getWord()}</strong>`;
+        showModal(content);
+      }
+
       function initNewGame() {
-        const hangman = new Hangman(getRandomWord());
+        const hangman = new Hangman(getRandomWord(), gameEndHandler);
+        hideModal();
         drawGame(hangman);
         return hangman;
       }
@@ -242,12 +308,12 @@
 
       function drawResult(faults) {
         const texts = [
-          /* 0 */ "You're chillling it",
-          /* 1 */ "Don't worry, everything is fine",
-          /* 2 */ "Don't worry, everything is fine",
-          /* 3 */ "Don't worry, everything is fine",
-          /* 4 */ 'Ooh... be careful',
-          /* 5 */ "That's not good",
+          /* 0 */ "Let's hang out.",
+          /* 1 */ "Don't worry, everything is fine.",
+          /* 2 */ "Don't worry, everything is fine.",
+          /* 3 */ "Don't worry, everything is fine.",
+          /* 4 */ 'Ooh... be careful!',
+          /* 5 */ "That's not good!",
           /* 6 */ 'OMG!!!',
           /* 7 */ 'R.I.P.',
         ];
@@ -311,10 +377,15 @@
       }
 
       class Hangman {
-        constructor(word) {
+        constructor(word, onEndGame) {
           this.word = word.toUpperCase();
           this.pickedLetters = [];
           this.faults = 0;
+          this.onEndGame = onEndGame;
+        }
+
+        getWord() {
+          return this.word;
         }
 
         getCharsOfWord() {
@@ -363,15 +434,19 @@
             return;
           }
 
+          this.pickedLetters.push(letter);
+
           if (contains) {
-            this.pickedLetters.push(letter);
             console.log('Yeah, you are great!');
-            return;
+          } else {
+            console.log('Oh no, try it again');
+            this.pickedLetters.push(letter);
+            this.faults += 1;
           }
 
-          console.log('Oh no, try it again');
-          this.pickedLetters.push(letter);
-          this.faults += 1;
+          if (this.isFinished()) {
+            this.onEndGame();
+          }
         }
 
         hasWon() {
