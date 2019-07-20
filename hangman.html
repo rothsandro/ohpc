@@ -178,6 +178,13 @@
           return this.word.split('');
         }
 
+        getLettersOfWord() {
+          const chars = this.getCharsOfWord();
+          return chars
+            .filter(char => char.match(/[A-Z]/))
+            .filter((char, index, list) => list.indexOf(char) === index);
+        }
+
         getNumberOfFaults() {
           return this.faults;
         }
@@ -225,9 +232,10 @@
         }
 
         hasWon() {
+          const letters = this.getLettersOfWord();
           return (
             !this.hasLost() &&
-            this.getCharsOfWord().every(char => {
+            letters.every(char => {
               return this.pickedLetters.includes(char);
             })
           );
