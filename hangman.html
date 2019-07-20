@@ -301,7 +301,7 @@
 
     <script>
       let game = null;
-      const MAX_FAULTS = 7;
+      const MAX_FAULTS = 9;
       const wordList = [
         'Higher-Order Components',
         'styled-components',
@@ -348,7 +348,7 @@
         const modal = document.getElementById('modal');
         const modalContent = modal.querySelector('.modal__content');
         modalContent.innerHTML = content;
-        modal.style.display = '';
+        setTimeout(() => (modal.style.display = ''), 800);
       }
 
       function gameEndHandler() {
@@ -384,10 +384,10 @@
           '<div class="drawing__part drawing__part-3"></div>',
           '<div class="drawing__part drawing__part-4"></div>',
           '<div class="drawing__part drawing__part-5"></div>',
-          `<div class="drawing__part drawing__part-6a"></div>
-           <div class="drawing__part drawing__part-6b"></div>`,
-          `<div class="drawing__part drawing__part-7a"></div>
-           <div class="drawing__part drawing__part-7b"></div>`,
+          `<div class="drawing__part drawing__part-6a"></div>`,
+          `<div class="drawing__part drawing__part-6b"></div>`,
+          `<div class="drawing__part drawing__part-7a"></div>`,
+          `<div class="drawing__part drawing__part-7b"></div>`,
         ];
 
         const visibleParts = parts.splice(0, faults);
@@ -397,14 +397,16 @@
 
       function drawResult(faults) {
         const texts = [
-          /* 0 */ "Let's hang out.",
-          /* 1 */ "Don't worry, everything is fine.",
+          /* 0 */ "Let's find that word!",
+          /* 1 */ "Let's hang out.",
           /* 2 */ "Don't worry, everything is fine.",
           /* 3 */ "Don't worry, everything is fine.",
-          /* 4 */ 'Ooh... be careful!',
-          /* 5 */ "That's not good!",
-          /* 6 */ 'OMG!!!',
-          /* 7 */ 'R.I.P.',
+          /* 4 */ "Don't worry, everything is fine.",
+          /* 5 */ 'Ooh... be careful!',
+          /* 6 */ "That's not good!",
+          /* 7 */ 'OMG!!!',
+          /* 8 */ 'HEEEELP!',
+          /* 9 */ 'R.I.P.',
         ];
 
         const container = document.querySelector('#drawing .drawing__message');
