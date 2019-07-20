@@ -64,10 +64,123 @@
         color: red;
       }
     </style>
+
+    <style>
+      .drawing {
+        border: 3px solid black;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      .drawing__container {
+        width: 20rem;
+        height: 18rem;
+        display: inline-block;
+        position: relative;
+        border-bottom: 3px solid black;
+      }
+
+      .drawing__message {
+        margin-top: 1.5rem;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+
+      .drawing__part {
+        position: absolute;
+      }
+
+      .drawing__part-1 {
+        width: 3px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        background-color: black;
+      }
+
+      .drawing__part-2 {
+        height: 3px;
+        top: 0;
+        right: 50%;
+        left: 0;
+        background-color: black;
+      }
+
+      .drawing__part-3 {
+        width: 3px;
+        height: 15%;
+        top: 0;
+        left: 50%;
+        background-color: black;
+      }
+
+      .drawing__part-4 {
+        width: 2.5rem;
+        height: 2.5rem;
+        top: 15%;
+        left: calc(50% - 1.25rem + 1.5px);
+        border-radius: 100%;
+        border: 3px solid black;
+      }
+
+      .drawing__part-5 {
+        width: 3px;
+        height: 30%;
+        top: calc(15% + 2.5rem);
+        left: 50%;
+        background-color: black;
+      }
+
+      .drawing__part-6a,
+      .drawing__part-6b {
+        width: 10%;
+        height: 3px;
+        top: calc(15% + 2.5rem + 1.5rem);
+        background-color: black;
+      }
+
+      .drawing__part-6a {
+        left: calc(50% - 10% + 1.5px);
+        transform-origin: right center;
+        transform: rotate(20deg);
+      }
+
+      .drawing__part-6b {
+        left: calc(50% + 1.5px);
+        transform-origin: left center;
+        transform: rotate(-20deg);
+      }
+
+      .drawing__part-7a,
+      .drawing__part-7b {
+        width: 25%;
+        height: 3px;
+        top: calc(45% + 2.5rem - 3px);
+        background-color: black;
+      }
+
+      .drawing__part-7a {
+        left: calc(50% - 25% + 1.5px);
+        transform-origin: right center;
+        transform: rotate(-55deg);
+      }
+
+      .drawing__part-7b {
+        left: calc(50% + 1.5px);
+        transform-origin: left center;
+        transform: rotate(55deg);
+      }
+    </style>
   </head>
   <body>
     <h1>Hangman</h1>
-    <div id="hangman">TBD</div>
+    <div id="hangman">
+      <div class="drawing" id="drawing">
+        <div class="drawing__container"></div>
+        <div class="drawing__message"></div>
+      </div>
+      <div id="result"></div>
+    </div>
     <div id="board">
       <div id="chars" class="chars"></div>
       <div id="keyboard" class="keyboard"></div>
@@ -78,7 +191,7 @@
 
     <script>
       let game = null;
-      const MAX_FAULTS = 5;
+      const MAX_FAULTS = 7;
       const wordList = [
         'Higher-Order Components',
         'styled-components',
@@ -93,7 +206,7 @@
 
       function initNewGame() {
         const hangman = new Hangman(getRandomWord());
-        drawBoard(hangman);
+        drawGame(hangman);
         return hangman;
       }
 
@@ -105,13 +218,42 @@
       function guessLetter(letter) {
         if (game && !game.isFinished()) {
           game.pickedLetter(letter);
-          drawBoard(game);
+          drawGame(game);
         }
       }
 
+      function drawHangman(faults) {
+        const parts = [
+          '<div class="drawing__part drawing__part-1"></div>',
+          '<div class="drawing__part drawing__part-2"></div>',
+          '<div class="drawing__part drawing__part-3"></div>',
+          '<div class="drawing__part drawing__part-4"></div>',
+          '<div class="drawing__part drawing__part-5"></div>',
+          `<div class="drawing__part drawing__part-6a"></div>
+           <div class="drawing__part drawing__part-6b"></div>`,
+          `<div class="drawing__part drawing__part-7a"></div>
+           <div class="drawing__part drawing__part-7b"></div>`,
+        ];
+
+        const visibleParts = parts.splice(0, faults);
+        const parent = document.querySelector('#drawing .drawing__container');
+        parent.innerHTML = visibleParts.join('');
+      }
+
       function drawResult(faults) {
-        const parent = document.getElementById('hangman');
-        parent.innerText = `${faults} / ${MAX_FAULTS}`;
+        const texts = [
+          /* 0 */ "You're chillling it",
+          /* 1 */ "Don't worry, everything is fine",
+          /* 2 */ "Don't worry, everything is fine",
+          /* 3 */ "Don't worry, everything is fine",
+          /* 4 */ 'Ooh... be careful',
+          /* 5 */ "That's not good",
+          /* 6 */ 'OMG!!!',
+          /* 7 */ 'R.I.P.',
+        ];
+
+        const container = document.querySelector('#drawing .drawing__message');
+        container.innerText = texts[faults];
       }
 
       function drawKeyboard(foundLetters, faultyLetters) {
@@ -152,9 +294,10 @@
         });
       }
 
-      function drawBoard(hangman) {
-        drawCharList(hangman.getCharList());
+      function drawGame(hangman) {
         drawResult(hangman.getNumberOfFaults());
+        drawHangman(hangman.getNumberOfFaults());
+        drawCharList(hangman.getCharList());
         drawKeyboard(hangman.getFoundLetters(), hangman.getFaultyLetters());
       }
 
