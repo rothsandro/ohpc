@@ -34,12 +34,43 @@
         border-bottom-color: black;
       }
     </style>
+
+    <style>
+      .keyboard {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .keyboard__key {
+        width: 3rem;
+        margin: 0 0.5rem 0.5rem 0;
+        padding: 0.5rem 0;
+        border-radius: 3px;
+        outline: none;
+        border: 2px solid black;
+        background: transparent;
+        font: inherit;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+
+      .keyboard__key--found {
+        border-color: green;
+        color: green;
+      }
+
+      .keyboard__key--is-faulty {
+        border-color: red;
+        color: red;
+      }
+    </style>
   </head>
   <body>
     <h1>Hangman</h1>
     <div id="hangman">TBD</div>
     <div id="board">
       <div id="chars" class="chars"></div>
+      <div id="keyboard" class="keyboard"></div>
     </div>
     <div>
       <button onclick="reinitGame()">New Game</button>
@@ -48,7 +79,6 @@
     <script>
       let game = null;
       const MAX_FAULTS = 5;
-
       const wordList = [
         'Higher-Order Components',
         'styled-components',
@@ -72,9 +102,42 @@
         return wordList[index];
       }
 
+      function guessLetter(letter) {
+        if (game && !game.isFinished()) {
+          game.pickedLetter(letter);
+          drawBoard(game);
+        }
+      }
+
       function drawResult(faults) {
         const parent = document.getElementById('hangman');
         parent.innerText = `${faults} / ${MAX_FAULTS}`;
+      }
+
+      function drawKeyboard(foundLetters, faultyLetters) {
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const keys = letters.map(letter => {
+          const found = foundLetters.includes(letter);
+          const faulty = faultyLetters.includes(letter);
+          return { letter, found, faulty };
+        });
+
+        const parent = document.getElementById('keyboard');
+        parent.innerHTML = '';
+        keys.map(key => {
+          const el = document.createElement('button');
+          el.innerText = key.letter;
+          el.disabled = key.found || key.faulty;
+          el.className = 'keyboard__key';
+          key.found && el.classList.add('keyboard__key--found');
+          key.faulty && el.classList.add('keyboard__key--is-faulty');
+
+          el.onclick = () => {
+            guessLetter(key.letter);
+          };
+
+          parent.appendChild(el);
+        });
       }
 
       function drawCharList(chars) {
@@ -92,6 +155,7 @@
       function drawBoard(hangman) {
         drawCharList(hangman.getCharList());
         drawResult(hangman.getNumberOfFaults());
+        drawKeyboard(hangman.getFoundLetters(), hangman.getFaultyLetters());
       }
 
       function listenForInputs(callback) {
@@ -110,7 +174,7 @@
           this.faults = 0;
         }
 
-        charsOfWord() {
+        getCharsOfWord() {
           return this.word.split('');
         }
 
@@ -118,8 +182,20 @@
           return this.faults;
         }
 
+        getFaultyLetters() {
+          return this.pickedLetters.filter(letter => {
+            return !this.word.includes(letter);
+          });
+        }
+
+        getFoundLetters() {
+          return this.pickedLetters.filter(letter => {
+            return this.word.includes(letter);
+          });
+        }
+
         getCharList() {
-          const chars = this.charsOfWord();
+          const chars = this.getCharsOfWord();
           return chars.map(char => {
             const isLetter = char.match(/[A-z]/);
             const pickedLetterAlready = this.pickedLetters.includes(char);
@@ -151,7 +227,7 @@
         hasWon() {
           return (
             !this.hasLost() &&
-            this.charsOfWord().every(char => {
+            this.getCharsOfWord().every(char => {
               return this.pickedLetters.includes(char);
             })
           );
@@ -168,10 +244,7 @@
 
       game = initNewGame();
       listenForInputs(letter => {
-        if (!game.isFinished()) {
-          game.pickedLetter(letter);
-          drawBoard(game);
-        }
+        guessLetter(letter);
       });
     </script>
   </body>
