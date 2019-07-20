@@ -15,9 +15,42 @@
         font-size: 100%;
       }
 
+      header {
+        text-align: center;
+      }
+
       h1 {
+        display: inline-block;
+        position: relative;
         margin: 0 0 2rem 0;
         text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: default;
+        user-select: none;
+        transition: all 180ms ease;
+      }
+
+      h1:hover {
+        color: rgb(0, 62, 230);
+        letter-spacing: 4px;
+        transform: scale(1.1) rotate(-4deg);
+      }
+
+      h1:before {
+        height: 4px;
+        content: ' ';
+        display: block;
+        position: absolute;
+        bottom: 0;
+        left: 100%;
+        right: 0;
+        transition: all 180ms ease;
+      }
+
+      h1:hover:before {
+        left: 0;
+        background: rgb(0, 62, 230);
       }
 
       footer {
@@ -67,10 +100,13 @@
 
     <style>
       .keyboard {
+        width: 100%;
+        max-width: 30rem;
         display: flex;
         flex-wrap: wrap;
         align-items: flex-end;
         justify-content: center;
+        margin: 0 auto;
         padding: 1rem;
       }
 
@@ -273,7 +309,9 @@
     </style>
   </head>
   <body>
-    <h1>Hangman</h1>
+    <header>
+      <h1>Hangman</h1>
+    </header>
     <div id="hangman">
       <div class="drawing" id="drawing">
         <div class="drawing__container"></div>
@@ -357,13 +395,13 @@
         const modal = document.getElementById('modal');
         const modalContent = modal.querySelector('.modal__content');
         modalContent.innerHTML = content;
-        setTimeout(() => (modal.style.display = ''), 800);
+        setTimeout(() => (modal.style.display = ''), 300);
       }
 
       function gameEndHandler() {
         const content = game.hasWon()
           ? `Great, you are a winner!`
-          : `Oh no, you fucked up! We were looking for <em>${game.getWord()}</em>`;
+          : `Oh no, you fucked up! We were looking for <em>${game.getWord()}</em>.`;
         showModal(content);
       }
 
