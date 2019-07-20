@@ -10,28 +10,40 @@
       }
       body {
         padding: 16px;
-        font-family: Bookman, serif;
+        font-family: 'Arial Black', sans-serif;
         font-size: 100%;
+      }
+
+      h1 {
+        margin: 0 0 2rem 0;
+        text-align: center;
       }
     </style>
 
     <style>
       .chars {
         display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 3rem 1rem;
       }
 
       .chars__char {
-        width: 1.5rem;
-        height: 2rem;
+        width: 2.6rem;
+        height: 3rem;
+        flex-shrink: 0;
         display: block;
-        margin-right: 0.5rem;
+        margin: 0 0.5rem 0.5rem 0;
         padding: 0.25rem;
-        border-bottom: solid 3px lightgray;
+        border: 0 solid rgb(0, 62, 230);
+        border-bottom-width: 3px;
+        font-size: 1.5rem;
         text-align: center;
       }
 
       .chars__char--is-letter {
-        border-bottom-color: black;
+        border-width: 2px 2px 4px 2px;
       }
     </style>
 
@@ -39,6 +51,9 @@
       .keyboard {
         display: flex;
         flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 1rem;
       }
 
       .keyboard__key {
@@ -47,27 +62,32 @@
         padding: 0.5rem 0;
         border-radius: 3px;
         outline: none;
-        border: 2px solid black;
-        background: transparent;
+        border: none;
+        background-color: rgba(0, 62, 230, 0.07);
+        color: rgb(0, 62, 230);
         font: inherit;
         font-size: 1.3rem;
         text-align: center;
+        cursor: pointer;
       }
 
       .keyboard__key--found {
-        border-color: green;
-        color: green;
+        background-color: rgba(102, 226, 213, 0.07);
+        color: rgb(102, 226, 213);
+        cursor: default;
       }
 
       .keyboard__key--is-faulty {
-        border-color: red;
-        color: red;
+        background-color: rgba(254, 0, 0, 0.07);
+        color: rgb(254, 0, 0);
+        cursor: default;
       }
     </style>
 
     <style>
       .drawing {
-        border: 3px solid black;
+        border: 3px solid rgb(0, 62, 230);
+        box-shadow: 5px 5px 0 1px rgb(0, 47, 179);
         padding: 1rem;
         text-align: center;
       }
@@ -190,25 +210,44 @@
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: rgba(0, 0, 0, 0.3);
+        background-color: rgba(0, 0, 0, 0.6);
       }
 
       .modal__main {
         width: 24rem;
         z-index: 1;
-        border: 3px solid black;
-        padding: 1rem;
+        box-shadow: 5px 5px 0 1px rgb(0, 47, 179);
+        border: 3px solid rgb(0, 62, 230);
+        padding: 2rem;
         background-color: white;
       }
 
       .modal__content {
-        line-height: 1.5rem;
+        font-size: 1.2rem;
+        line-height: 2rem;
         text-align: center;
       }
 
+      .modal__content em {
+        color: rgb(0, 62, 230);
+      }
+
       .modal__actions {
-        margin-top: 1rem;
+        margin-top: 2rem;
         text-align: center;
+      }
+
+      .modal__actions button {
+        margin: 0;
+        padding: 0.5rem 1rem;
+        outline: none;
+        border: none;
+        background-color: rgb(0, 62, 230);
+        color: white;
+        font: inherit;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
       }
     </style>
   </head>
@@ -265,7 +304,7 @@
       function gameEndHandler() {
         const content = game.hasWon()
           ? `Great, you are a winner!`
-          : `Oh no, you fucked up! We were looking for <strong>${game.getWord()}</strong>`;
+          : `Oh no, you fucked up! We were looking for <em>${game.getWord()}</em>`;
         showModal(content);
       }
 
